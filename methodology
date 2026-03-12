@@ -1,0 +1,51 @@
+1. Introduction
+Employee attrition refers to the gradual reduction of a workforce as employees leave and are not replaced. High attrition rates are costly for organizations, resulting in financial losses from rehiring, onboarding, lost productivity, and weakened institutional knowledge.
+This project applies a hybrid machine learning approach to the IBM HR Analytics Employee Attrition dataset to build a predictive system that identifies employees at risk of leaving. The hybrid model integrates both unsupervised learning (K-Means Clustering) for employee segmentation and supervised learning (Random Forest Classifier) for attrition prediction.
+2. Dataset Description
+The IBM HR Analytics Employee Attrition & Performance dataset is used for this project. It contains records for 1,470 employees with 35 features covering demographics, job characteristics, compensation, and satisfaction metrics.
+
+Attribute	Details
+Total Records	1,470 employees
+Number of Features	35 attributes
+Target Variable	Attrition (Yes / No)
+Attrition Rate	~16% employees left (imbalanced dataset)
+Key Features	Age, OverTime, MonthlyIncome, JobSatisfaction, YearsAtCompany, Department, etc.
+
+3. Methodology
+The project follows a six-step pipeline combining unsupervised and supervised machine learning techniques.
+Step 1: Data Collection
+The dataset is loaded from the IBM HR Analytics CSV file. An initial inspection is conducted to examine shape, data types, missing values, and the distribution of the target variable (Attrition).
+Step 2: Data Preprocessing
+Raw HR data requires cleaning and transformation before machine learning models can be applied. The following preprocessing steps are performed:
+•	Irrelevant and constant columns are dropped: EmployeeCount, Over18, StandardHours, EmployeeNumber.
+•	The target variable Attrition is binary-encoded: Yes → 1, No → 0.
+•	All remaining categorical columns (e.g., Gender, Department, JobRole) are label-encoded using scikit-learn's LabelEncoder.
+•	All numerical features are standardized using StandardScaler (mean = 0, std = 1) to ensure equal contribution across features.
+Step 3: Unsupervised Learning — K-Means Clustering
+K-Means clustering is applied on the scaled feature set to discover natural employee groupings. This is the unsupervised component of the hybrid model.
+•	The Elbow Method is used to determine the optimal number of clusters K by plotting inertia (Within-Cluster Sum of Squares) against increasing K values. The 'elbow' point suggests K = 3 as optimal.
+•	Three clusters are formed, each representing a distinct employee profile (e.g., high-earners with low risk, junior employees with high overtime, mid-level employees with moderate satisfaction).
+•	Attrition rates are computed per cluster to understand which segment is most at risk.
+•	PCA (Principal Component Analysis) is used to project the clusters into 2D space for visualization.
+Step 4: Building the Hybrid Feature Set
+This is the key innovation of the hybrid model. The cluster label assigned to each employee by K-Means is appended as an additional feature to the original feature set. This gives the supervised model access to the structural groupings identified by the unsupervised algorithm, improving its ability to distinguish at-risk employees.
+Step 5: Supervised Learning — Random Forest Classifier
+A Random Forest Classifier is trained on the hybrid feature set (original features + cluster label) to predict employee attrition.
+•	The dataset is split into 80% training and 20% testing using stratified splitting to preserve the class ratio.
+•	The Random Forest uses 200 decision trees (n_estimators = 200) with max_depth = 10.
+•	The class_weight = 'balanced' parameter is set to handle the class imbalance (~16% positive class).
+•	The model learns patterns from the training set and makes binary predictions (Attrition: Yes/No) on unseen test data.
+Step 6: Model Evaluation
+The model is evaluated using the following metrics:
+
+Metric	Description
+Accuracy	Proportion of correctly classified instances
+Precision	Of predicted attritions, how many actually left
+Recall	Of actual attritions, how many were correctly predicted
+F1-Score	Harmonic mean of Precision and Recall
+ROC-AUC	Area Under the ROC Curve — overall model discrimination ability
+Confusion Matrix	Visual breakdown of true/false positives and negatives
+
+Step 7: Feature Importance Analysis
+After training, the Random Forest's built-in feature importance scores are extracted. These scores indicate which features most influenced attrition predictions. The top features are visualized using a horizontal bar chart.
+ 
